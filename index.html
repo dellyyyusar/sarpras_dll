@@ -16,7 +16,7 @@
             --primary: #2563eb;
             --bg: #f8fafc;
             --text: #1e293b;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
         }
 
         body {
@@ -28,95 +28,145 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
         }
 
-        h1 { margin-top: 0; }
+        h1 { margin-top: 0; color: #0f172a; }
 
         /* Tabs Styling */
         .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 24px;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 2px;
         }
 
         .tab-btn {
             background: none;
             border: none;
-            padding: 12px 20px;
+            padding: 12px 24px;
             font-family: inherit;
             font-weight: 600;
             cursor: pointer;
             color: #64748b;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
         }
 
+        .tab-btn:hover { background-color: #f1f5f9; color: var(--primary); }
+        
         .tab-btn.active {
             color: var(--primary);
-            border-bottom-color: var(--primary);
+            background-color: #eff6ff;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: -4px; /* overlap border */
         }
 
-        .tab-content { display: none; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Form Styling */
-        .form-group { margin-bottom: 16px; }
-        label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; }
+        .grid-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-group { margin-bottom: 12px; }
+        
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            font-size: 0.9rem; 
+            color: #334155;
+        }
+        
         input {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             font-family: inherit;
             box-sizing: border-box;
+            font-size: 1rem;
+            transition: border 0.2s;
         }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
         button.submit-btn {
             background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 14px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 700;
             width: 100%;
+            font-size: 1rem;
+            margin-top: 10px;
+            transition: background 0.2s;
         }
-        button.submit-btn:hover { opacity: 0.9; }
+        button.submit-btn:hover { background-color: #1d4ed8; }
 
         /* Table Styling */
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 25px;
             font-size: 0.95rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
         }
         th, td {
             text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
         }
-        th { background-color: #f1f5f9; font-weight: 600; }
+        th { background-color: #f8fafc; font-weight: 700; color: #475569; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #f8fafc; }
         
         .alert {
-            padding: 10px;
+            padding: 12px;
             background: #dcfce7;
             color: #166534;
-            border-radius: 6px;
-            margin-bottom: 15px;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            margin-bottom: 20px;
             display: none;
+            font-weight: 500;
+        }
+
+        .badge-stok {
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📦 Stok Barang Gudang</h1>
+    <h1>📦 Dashboard Stok Gudang</h1>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('master')">1. Master Barang</button>
@@ -124,31 +174,35 @@
         <button class="tab-btn" onclick="openTab('rekap')">3. Rekap Data</button>
     </div>
 
-    <div id="alertBox" class="alert">Data berhasil disimpan!</div>
+    <div id="alertBox" class="alert">✅ Data berhasil disimpan!</div>
 
     <div id="master" class="tab-content active">
-        <h3>Input Stok Awal</h3>
-        <div class="form-group">
-            <label>ID Barang (Kode Unik)</label>
-            <input type="text" id="m_id" placeholder="Contoh: B001">
+        <div style="background: #eff6ff; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h3 style="margin-top:0">Input Master Barang</h3>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label>ID Barang (Kode Unik)</label>
+                    <input type="text" id="m_id" placeholder="Contoh: B001">
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang</label>
+                    <input type="text" id="m_nama" placeholder="Contoh: Laptop Asus">
+                </div>
+                <div class="form-group">
+                    <label>Stok Awal</label>
+                    <input type="number" id="m_stok" placeholder="0">
+                </div>
+            </div>
+            <button class="submit-btn" onclick="simpanMaster()">Simpan / Update Master Barang</button>
         </div>
-        <div class="form-group">
-            <label>Nama Barang</label>
-            <input type="text" id="m_nama" placeholder="Contoh: Laptop Asus">
-        </div>
-        <div class="form-group">
-            <label>Stok Awal</label>
-            <input type="number" id="m_stok" placeholder="0">
-        </div>
-        <button class="submit-btn" onclick="simpanMaster()">Simpan Master Barang</button>
 
-        <h3>Data Master Barang</h3>
+        <h3>Daftar Master Barang</h3>
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th width="20%">ID</th>
                     <th>Nama Barang</th>
-                    <th>Stok Awal</th>
+                    <th width="20%">Stok Awal</th>
                 </tr>
             </thead>
             <tbody id="tabelMaster">
@@ -157,26 +211,30 @@
     </div>
 
     <div id="keluar" class="tab-content">
-        <h3>Input Barang Keluar</h3>
-        <div class="form-group">
-            <label>Tanggal</label>
-            <input type="date" id="k_tanggal">
+        <div style="background: #fff1f2; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h3 style="margin-top:0; color: #9f1239;">Input Barang Keluar</h3>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label>Tanggal Keluar</label>
+                    <input type="date" id="k_tanggal">
+                </div>
+                <div class="form-group">
+                    <label>ID Barang</label>
+                    <input type="text" id="k_id" placeholder="Ketik ID Barang (Harus sesuai Master)">
+                </div>
+                <div class="form-group">
+                    <label>Nama Barang (Opsional)</label>
+                    <input type="text" id="k_nama" placeholder="Nama Barang">
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Keluar</label>
+                    <input type="number" id="k_jumlah" placeholder="0">
+                </div>
+            </div>
+            <button class="submit-btn" style="background-color: #e11d48;" onclick="simpanKeluar()">Simpan Transaksi Keluar</button>
         </div>
-        <div class="form-group">
-            <label>ID Barang</label>
-            <input type="text" id="k_id" placeholder="Masukkan ID yang ada di Master">
-        </div>
-        <div class="form-group">
-            <label>Nama Barang</label>
-            <input type="text" id="k_nama" placeholder="Nama Barang">
-        </div>
-        <div class="form-group">
-            <label>Jumlah Keluar</label>
-            <input type="number" id="k_jumlah" placeholder="0">
-        </div>
-        <button class="submit-btn" onclick="simpanKeluar()">Simpan Transaksi Keluar</button>
         
-        <h3>Riwayat Barang Keluar</h3>
+        <h3>Riwayat Transaksi Keluar</h3>
         <table>
             <thead>
                 <tr>
@@ -191,8 +249,11 @@
     </div>
 
     <div id="rekap" class="tab-content">
-        <h3>Rekapitulasi Stok Akhir</h3>
-        <p style="color: #64748b; font-size: 0.9rem;">Rumus: Stok Awal - Total Barang Keluar</p>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>📊 Rekapitulasi Stok Akhir</h3>
+            <button onclick="loadRekap()" style="padding: 8px 16px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: white;">🔄 Refresh Data</button>
+        </div>
+        
         <table>
             <thead>
                 <tr>
@@ -204,17 +265,15 @@
                 </tr>
             </thead>
             <tbody id="tabelRekap">
-                <tr><td colspan="5">Memuat data...</td></tr>
+                <tr><td colspan="5" style="text-align: center;">Klik Refresh untuk memuat data...</td></tr>
             </tbody>
         </table>
-        <button class="submit-btn" onclick="loadRekap()" style="margin-top: 20px;">Refresh Data</button>
     </div>
 
 </div>
 
 <script>
-    // --- KONFIGURASI SUPABASE ---
-    // GANTI INI DENGAN DATA DARI SUPABASE ANDA
+    // --- KONFIGURASI SUPABASE (UPDATED) ---
     const supabaseUrl = 'https://yyffrkuquxhyffjtzbbt.supabase.co'; 
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5ZmZya3VxdXhoeWZmanR6YmJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyMDA2NTQsImV4cCI6MjA4Mzc3NjY1NH0.oljss0CAwBEf7fF5Exmlm_Ha9PwAgV60f-RGWxNdAhs';
     
@@ -228,7 +287,7 @@
         document.getElementById(tabName).classList.add('active');
         event.currentTarget.classList.add('active');
 
-        // Load data specific to tab
+        // Auto load data saat tab dibuka
         if(tabName === 'master') loadMasterTable();
         if(tabName === 'keluar') loadKeluarTable();
         if(tabName === 'rekap') loadRekap();
@@ -249,15 +308,18 @@
 
         if (!id || !nama) return alert("ID dan Nama wajib diisi");
 
+        // UPSERT: Jika ID ada update, jika tidak insert
         const { error } = await _supabase
             .from('barang')
             .upsert({ id_barang: id, nama_barang: nama, stok_awal: stok });
 
-        if (error) alert('Error: ' + error.message);
-        else {
-            showAlert('Master Barang Tersimpan!');
+        if (error) {
+            console.error(error);
+            alert('Gagal Simpan: ' + error.message);
+        } else {
+            showAlert('✅ Master Barang Tersimpan!');
             loadMasterTable();
-            // Reset form
+            // Kosongkan form input
             document.getElementById('m_id').value = '';
             document.getElementById('m_nama').value = '';
             document.getElementById('m_stok').value = '';
@@ -265,7 +327,7 @@
     }
 
     async function loadMasterTable() {
-        const { data, error } = await _supabase.from('barang').select('*');
+        const { data, error } = await _supabase.from('barang').select('*').order('created_at', {ascending: false});
         const tbody = document.getElementById('tabelMaster');
         tbody.innerHTML = '';
 
@@ -273,8 +335,8 @@
             data.forEach(item => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${item.id_barang}</td>
-                        <td>${item.nama_barang}</td>
+                        <td style="font-family: monospace; color: #64748b;">${item.id_barang}</td>
+                        <td style="font-weight: 600;">${item.nama_barang}</td>
                         <td>${item.stok_awal}</td>
                     </tr>
                 `;
@@ -289,21 +351,25 @@
         const nama = document.getElementById('k_nama').value;
         const jml = document.getElementById('k_jumlah').value;
 
-        if (!tgl || !id || !jml) return alert("Lengkapi data!");
+        if (!tgl || !id || !jml) return alert("Tanggal, ID, dan Jumlah wajib diisi!");
 
         const { error } = await _supabase
             .from('barang_keluar')
             .insert({ tanggal: tgl, id_barang: id, nama_barang: nama, jumlah_keluar: jml });
 
-        if (error) alert('Error (Cek apakah ID Barang ada di Master): ' + error.message);
-        else {
-            showAlert('Barang Keluar Tersimpan!');
+        if (error) {
+            console.error(error);
+            alert('Gagal Simpan (Pastikan ID Barang ada di Master): ' + error.message);
+        } else {
+            showAlert('✅ Barang Keluar Tersimpan!');
             loadKeluarTable();
+            // Reset jumlah saja agar mudah input lagi
+            document.getElementById('k_jumlah').value = '';
         }
     }
 
     async function loadKeluarTable() {
-        const { data } = await _supabase.from('barang_keluar').select('*').order('tanggal', {ascending: false});
+        const { data } = await _supabase.from('barang_keluar').select('*').order('id', {ascending: false});
         const tbody = document.getElementById('tabelKeluar');
         tbody.innerHTML = '';
         if(data) {
@@ -311,9 +377,9 @@
                 tbody.innerHTML += `
                     <tr>
                         <td>${item.tanggal}</td>
-                        <td>${item.id_barang}</td>
-                        <td>${item.nama_barang}</td>
-                        <td>${item.jumlah_keluar}</td>
+                        <td style="font-family: monospace;">${item.id_barang}</td>
+                        <td>${item.nama_barang || '-'}</td>
+                        <td style="color: #e11d48; font-weight: bold;">-${item.jumlah_keluar}</td>
                     </tr>
                 `;
             });
@@ -322,40 +388,48 @@
 
     // --- LOGIKA TAB 3: REKAP DATA ---
     async function loadRekap() {
-        // 1. Ambil Master
+        document.getElementById('tabelRekap').innerHTML = '<tr><td colspan="5">Sedang menghitung...</td></tr>';
+
+        // 1. Ambil Semua Master
         const { data: master } = await _supabase.from('barang').select('*');
-        // 2. Ambil Transaksi Keluar
+        // 2. Ambil Semua Transaksi Keluar
         const { data: keluar } = await _supabase.from('barang_keluar').select('*');
 
         const tbody = document.getElementById('tabelRekap');
         tbody.innerHTML = '';
 
-        if (master && keluar) {
+        if (master) {
             master.forEach(brg => {
-                // Hitung total keluar untuk barang ini
-                const totalKeluar = keluar
-                    .filter(k => k.id_barang === brg.id_barang)
-                    .reduce((sum, item) => sum + (item.jumlah_keluar || 0), 0);
+                // Filter barang keluar yang ID-nya cocok
+                const transaksiBarangIni = keluar ? keluar.filter(k => k.id_barang === brg.id_barang) : [];
+                
+                // Hitung total keluar menggunakan reduce
+                const totalKeluar = transaksiBarangIni.reduce((sum, item) => sum + (item.jumlah_keluar || 0), 0);
+                
+                // Hitung Sisa
+                const sisa = (brg.stok_awal || 0) - totalKeluar;
 
-                const sisa = brg.stok_awal - totalKeluar;
-
-                // Tampilkan warning jika stok minus atau 0
-                const styleSisa = sisa <= 0 ? 'color: red; font-weight: bold;' : 'color: green;';
+                // Style logic untuk stok
+                let badgeStyle = "color: #166534; background: #dcfce7;"; // Hijau (Aman)
+                if (sisa <= 0) badgeStyle = "color: #9f1239; background: #ffe4e6;"; // Merah (Habis/Minus)
+                else if (sisa < 5) badgeStyle = "color: #854d0e; background: #fef9c3;"; // Kuning (Menipis)
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>${brg.id_barang}</td>
-                        <td>${brg.nama_barang}</td>
+                        <td style="font-family: monospace;">${brg.id_barang}</td>
+                        <td style="font-weight: 600;">${brg.nama_barang}</td>
                         <td>${brg.stok_awal}</td>
-                        <td>${totalKeluar}</td>
-                        <td style="${styleSisa}">${sisa}</td>
+                        <td style="color: #e11d48;">${totalKeluar}</td>
+                        <td><span class="badge-stok" style="${badgeStyle}">${sisa}</span></td>
                     </tr>
                 `;
             });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5">Belum ada data master barang.</td></tr>';
         }
     }
 
-    // Load awal
+    // Load awal saat halaman dibuka
     loadMasterTable();
     // Set default tanggal hari ini
     document.getElementById('k_tanggal').valueAsDate = new Date();
